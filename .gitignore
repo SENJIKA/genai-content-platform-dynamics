@@ -1,0 +1,34 @@
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.synctex.gz(busy)
+*.xdv
+
+# macOS and local scratch files
+.DS_Store
+/tmp/
+__pycache__/
+*.py[cod]
+
+# Local historical drafts and root-level build output
+/0720.pdf
+/0802.pdf
+/main.pdf
+/output/pdf/*修订版.pdf
+/output/pdf/*随机学习扩展版.pdf
+/figures/dynamic_wedge_*.pdf
+
+# Third-party papers, replication archives, code, and raw data are kept local.
+/literature_recent_discrete_models/*.pdf
+/literature_recent_discrete_models/replication_code_sources/*.zip
+/literature_recent_discrete_models/replication_code_sources/data_economy_*/
+/literature_recent_discrete_models/replication_code_sources/structural_rl/
+/literature_recent_discrete_models/replication_code_sources/kuairec_caption_category.csv
