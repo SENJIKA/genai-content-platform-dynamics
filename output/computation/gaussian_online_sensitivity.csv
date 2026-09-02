@@ -1,0 +1,6 @@
+case,rho,process_sd,exploration_cost,iterations,bellman_residual,test_share_low_precision,test_share_high_precision,entry_low_precision,entry_high_precision
+baseline_coarse,0.88,0.16,0.06,197,2.745739635656719e-07,0.5,0.0,1.25,1.25
+low_persistence,0.7,0.16,0.06,197,2.746528267039139e-07,0.125,0.0,1.25,1.25
+high_persistence,0.96,0.16,0.06,198,2.5664390079782606e-07,0.5,0.0,1.25,1.25
+high_process_noise,0.88,0.24,0.06,198,2.5502667710952664e-07,0.5,0.0,1.25,1.25
+high_test_cost,0.88,0.16,0.12,197,2.745171840956573e-07,0.375,0.0,1.25,1.25

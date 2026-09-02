@@ -1,0 +1,411 @@
+{
+  "interpretation": "partial calibration of online-learning mechanisms, not a production recommender estimate",
+  "data_moment": {
+    "total_rows": 10732,
+    "valid_rows": 10687,
+    "categories": 40,
+    "shannon_entropy": 3.225995220567424,
+    "normalized_shannon_entropy": 0.8745190133469145,
+    "effective_categories": 25.178619971150482
+  },
+  "gaussian_drift": {
+    "parameters": {
+      "rho": 0.88,
+      "process_sd": 0.16,
+      "match_loading": 0.55,
+      "exploration_cost": 0.06,
+      "signal_scale": 1.35,
+      "signal_exploration_gain": 2.5,
+      "reference_k": 1.5,
+      "reference_m": 3.0
+    },
+    "grid": {
+      "n_mu": 25,
+      "n_xi": 17,
+      "n_n": 17,
+      "n_s": 9,
+      "n_a": 9,
+      "mu_min": -0.6,
+      "mu_max": 0.6,
+      "xi_min": 1.5,
+      "xi_max": 22.0
+    },
+    "iterations": 211,
+    "bellman_residual": 8.541979212850492e-08,
+    "elapsed_seconds": 1.8698992079589516,
+    "max_zeta": 3.35520640061091,
+    "reference_policies": [
+      {
+        "mu": -0.3,
+        "xi": 3.0,
+        "n": 1.25,
+        "a": 0.5,
+        "s": 0.375,
+        "psi": 0.010063400951800694,
+        "support": 0.010063400951800694,
+        "quota_wedge": 0.0,
+        "signal_precision": 2.5390709755437544,
+        "natural_entry": 1.238887957789315,
+        "quota_gap": 0.0
+      },
+      {
+        "mu": 0.0,
+        "xi": 3.0,
+        "n": 1.5,
+        "a": 0.0,
+        "s": 0.375,
+        "psi": 0.02302413515220747,
+        "support": 0.02302413515220747,
+        "quota_wedge": 0.0,
+        "signal_precision": 1.2750937988318962,
+        "natural_entry": 1.4757981955722759,
+        "quota_gap": 0.0
+      },
+      {
+        "mu": 0.0,
+        "xi": 10.0,
+        "n": 1.5,
+        "a": 0.0,
+        "s": 0.375,
+        "psi": 0.02302413515220747,
+        "support": 0.02302413515220747,
+        "quota_wedge": 0.0,
+        "signal_precision": 1.2750937988318962,
+        "natural_entry": 1.4757981955722759,
+        "quota_gap": 0.0
+      },
+      {
+        "mu": 0.3,
+        "xi": 10.0,
+        "n": 1.75,
+        "a": 0.0,
+        "s": 0.375,
+        "psi": 0.05782617309363447,
+        "support": 0.05782617309363447,
+        "quota_wedge": 0.0,
+        "signal_precision": 1.4077257408635206,
+        "natural_entry": 1.6915441148824528,
+        "quota_gap": 0.0
+      },
+      {
+        "mu": 0.0,
+        "xi": 18.0,
+        "n": 1.5,
+        "a": 0.0,
+        "s": 0.375,
+        "psi": 0.02302413515220747,
+        "support": 0.02302413515220747,
+        "quota_wedge": 0.0,
+        "signal_precision": 1.2750937988318962,
+        "natural_entry": 1.4757981955722759,
+        "quota_gap": 0.0
+      }
+    ],
+    "sensitivity": [
+      {
+        "case": "baseline_coarse",
+        "rho": 0.88,
+        "process_sd": 0.16,
+        "exploration_cost": 0.06,
+        "iterations": 197,
+        "bellman_residual": 2.745739635656719e-07,
+        "test_share_low_precision": 0.5,
+        "test_share_high_precision": 0.0,
+        "entry_low_precision": 1.25,
+        "entry_high_precision": 1.25
+      },
+      {
+        "case": "low_persistence",
+        "rho": 0.7,
+        "process_sd": 0.16,
+        "exploration_cost": 0.06,
+        "iterations": 197,
+        "bellman_residual": 2.746528267039139e-07,
+        "test_share_low_precision": 0.125,
+        "test_share_high_precision": 0.0,
+        "entry_low_precision": 1.25,
+        "entry_high_precision": 1.25
+      },
+      {
+        "case": "high_persistence",
+        "rho": 0.96,
+        "process_sd": 0.16,
+        "exploration_cost": 0.06,
+        "iterations": 198,
+        "bellman_residual": 2.5664390079782606e-07,
+        "test_share_low_precision": 0.5,
+        "test_share_high_precision": 0.0,
+        "entry_low_precision": 1.25,
+        "entry_high_precision": 1.25
+      },
+      {
+        "case": "high_process_noise",
+        "rho": 0.88,
+        "process_sd": 0.24,
+        "exploration_cost": 0.06,
+        "iterations": 198,
+        "bellman_residual": 2.5502667710952664e-07,
+        "test_share_low_precision": 0.5,
+        "test_share_high_precision": 0.0,
+        "entry_low_precision": 1.25,
+        "entry_high_precision": 1.25
+      },
+      {
+        "case": "high_test_cost",
+        "rho": 0.88,
+        "process_sd": 0.16,
+        "exploration_cost": 0.12,
+        "iterations": 197,
+        "bellman_residual": 2.745171840956573e-07,
+        "test_share_low_precision": 0.375,
+        "test_share_high_precision": 0.0,
+        "entry_low_precision": 1.25,
+        "entry_high_precision": 1.25
+      }
+    ],
+    "simulation": {
+      "periods": 90,
+      "mean_test_exposure": 0.05694444444444444,
+      "mean_entry": 1.4194444444444445,
+      "rmse_belief": 0.21637695611763438,
+      "share_mu_on_grid_boundary": 0.0,
+      "share_xi_on_grid_boundary": 0.0
+    }
+  },
+  "markov_hotspot": {
+    "parameters": {
+      "switch_probability": 0.08,
+      "match_loading": 0.35,
+      "signal_cap": 0.45,
+      "signal_scale": 0.72,
+      "comparative_signal_floor": 0.15,
+      "early_k": 0.5,
+      "early_m": 0.5,
+      "mature_k": 3.5,
+      "mature_m": 8.5
+    },
+    "grid": {
+      "n_p": 81,
+      "n_n": 17,
+      "n_s": 9,
+      "n_a": 21
+    },
+    "early": {
+      "iterations": 227,
+      "bellman_residual": 8.890772562608618e-09,
+      "elapsed_seconds": 0.1502901659696363,
+      "max_zeta": 1.80476759422903,
+      "policy_symmetry_residual": 0.0
+    },
+    "mature": {
+      "iterations": 251,
+      "bellman_residual": 9.132833156400011e-09,
+      "elapsed_seconds": 0.13429158297367394,
+      "max_zeta": 3.9912570701847394,
+      "policy_symmetry_residual": 0.0
+    },
+    "reference_policies": [
+      {
+        "structural_state": "early",
+        "belief_a": 0.1,
+        "n": 1.0,
+        "a": 0.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": 0.3296726621209863,
+        "support": 0.3296726621209863,
+        "quota_wedge": 0.0,
+        "signal_accuracy": 0.5390844171540782,
+        "natural_entry": 0.6476611361685698,
+        "quota_gap": 0.0
+      },
+      {
+        "structural_state": "early",
+        "belief_a": 0.3,
+        "n": 1.0,
+        "a": 0.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": 0.3593367248462667,
+        "support": 0.3593367248462667,
+        "quota_wedge": 0.0,
+        "signal_accuracy": 0.5390844171540782,
+        "natural_entry": 0.6097130842797758,
+        "quota_gap": 0.0
+      },
+      {
+        "structural_state": "early",
+        "belief_a": 0.5,
+        "n": 1.0,
+        "a": 0.5,
+        "test_intensity": 1.0,
+        "s": 0.375,
+        "psi": 0.388177731572517,
+        "support": 0.388177731572517,
+        "quota_wedge": 0.0,
+        "signal_accuracy": 0.7044462927531923,
+        "natural_entry": 0.57158984389505,
+        "quota_gap": 0.0
+      },
+      {
+        "structural_state": "early",
+        "belief_a": 0.7,
+        "n": 1.0,
+        "a": 1.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": 0.3593367248462667,
+        "support": 0.3593367248462667,
+        "quota_wedge": 0.0,
+        "signal_accuracy": 0.5390844171540782,
+        "natural_entry": 0.6097130842797758,
+        "quota_gap": 0.0
+      },
+      {
+        "structural_state": "early",
+        "belief_a": 0.9,
+        "n": 1.0,
+        "a": 1.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": 0.3296726621209863,
+        "support": 0.3296726621209863,
+        "quota_wedge": 0.0,
+        "signal_accuracy": 0.5390844171540782,
+        "natural_entry": 0.6476611361685698,
+        "quota_gap": 0.0
+      },
+      {
+        "structural_state": "mature",
+        "belief_a": 0.1,
+        "n": 2.5,
+        "a": 0.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": -0.9472247076182354,
+        "support": 0.0,
+        "quota_wedge": 0.9472247076182354,
+        "signal_accuracy": 0.6289969954628534,
+        "natural_entry": 3.465933796111104,
+        "quota_gap": 0.9659337961111039
+      },
+      {
+        "structural_state": "mature",
+        "belief_a": 0.3,
+        "n": 2.5,
+        "a": 0.25,
+        "test_intensity": 0.75,
+        "s": 0.25,
+        "psi": -0.0018815798821840701,
+        "support": 0.0,
+        "quota_wedge": 0.0018815798821840701,
+        "signal_accuracy": 0.8736129782713913,
+        "natural_entry": 2.5023660960494762,
+        "quota_gap": 0.0023660960494762406
+      },
+      {
+        "structural_state": "mature",
+        "belief_a": 0.5,
+        "n": 3.0,
+        "a": 0.5,
+        "test_intensity": 1.0,
+        "s": 0.375,
+        "psi": -0.07550466026548963,
+        "support": 0.0,
+        "quota_wedge": 0.07550466026548963,
+        "signal_accuracy": 0.919829314179875,
+        "natural_entry": 3.0880212516818215,
+        "quota_gap": 0.08802125168182151
+      },
+      {
+        "structural_state": "mature",
+        "belief_a": 0.7,
+        "n": 2.5,
+        "a": 0.75,
+        "test_intensity": 0.75,
+        "s": 0.25,
+        "psi": -0.0018815798821840701,
+        "support": 0.0,
+        "quota_wedge": 0.0018815798821840701,
+        "signal_accuracy": 0.8736129782713913,
+        "natural_entry": 2.5023660960494762,
+        "quota_gap": 0.0023660960494762406
+      },
+      {
+        "structural_state": "mature",
+        "belief_a": 0.9,
+        "n": 2.5,
+        "a": 1.0,
+        "test_intensity": 0.0,
+        "s": 0.375,
+        "psi": -0.9472247076182354,
+        "support": 0.0,
+        "quota_wedge": 0.9472247076182354,
+        "signal_accuracy": 0.6289969954628534,
+        "natural_entry": 3.465933796111104,
+        "quota_gap": 0.9659337961111039
+      }
+    ],
+    "sensitivity": [
+      {
+        "case": "slow_switching",
+        "switch_probability": 0.02,
+        "signal_cap": 0.45,
+        "iterations": 214,
+        "bellman_residual": 2.710161695063107e-08,
+        "test_intensity_p50": 1.0,
+        "share_A_p65": 0.625,
+        "test_intensity_p65": 0.9375,
+        "entry_p50": 1.0,
+        "entry_p65": 1.0
+      },
+      {
+        "case": "baseline",
+        "switch_probability": 0.08,
+        "signal_cap": 0.45,
+        "iterations": 214,
+        "bellman_residual": 2.6360844174178055e-08,
+        "test_intensity_p50": 1.0,
+        "share_A_p65": 0.75,
+        "test_intensity_p65": 0.75,
+        "entry_p50": 1.0,
+        "entry_p65": 1.0
+      },
+      {
+        "case": "fast_switching",
+        "switch_probability": 0.18,
+        "signal_cap": 0.45,
+        "iterations": 214,
+        "bellman_residual": 2.595832171436996e-08,
+        "test_intensity_p50": 1.0,
+        "share_A_p65": 1.0,
+        "test_intensity_p65": 0.0,
+        "entry_p50": 1.0,
+        "entry_p65": 1.0
+      },
+      {
+        "case": "weak_feedback",
+        "switch_probability": 0.08,
+        "signal_cap": 0.3,
+        "iterations": 214,
+        "bellman_residual": 2.6070384961940363e-08,
+        "test_intensity_p50": 1.0,
+        "share_A_p65": 1.0,
+        "test_intensity_p65": 0.0,
+        "entry_p50": 1.0,
+        "entry_p65": 1.0
+      }
+    ],
+    "simulation": {
+      "periods": 100,
+      "mean_test_intensity": 0.38900000000000007,
+      "mean_entry": 1.0,
+      "classification_accuracy": 0.76
+    }
+  },
+  "source_boundaries": {
+    "economics": "the model borrows dynamic-experimentation and belief-state organization only",
+    "algorithms": "all NumPy code and parameterizations are original to this project",
+    "platform": "no claim that a named platform uses these exact updates or parameters"
+  }
+}

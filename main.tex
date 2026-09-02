@@ -95,7 +95,8 @@
 试验范围，另一方面造成注意力拥堵、筛选成本和创作者激励稀释。
 本文首先求解终端期的曝光、努力和进入均衡；随后建立$t\in\{1,2\}$的两期
 离散时间模型，引入创作资本与推荐资本的跨期积累；最后给出离散时间无限期
-Bellman方程，并在扩展模型中以项目反馈构造贝叶斯后验状态和受控马尔可夫转移。
+Bellman方程，并用两种替代性规格刻画非平稳在线学习：高斯漂移状态下的内生测试
+曝光，以及两题材马尔可夫热点切换下的探索---利用配置。
 全文的核心对象是项目进入的动态边际价值：它等于当期边际利润、
 创作资本积累价值与推荐学习价值之和。该边际价值在零补贴自然进入规模处的符号，
 统一决定平台应当扩大补贴、维持零补贴还是使用选择性准入。模型表明，当推荐资本
@@ -106,13 +107,14 @@ Bellman方程，并在扩展模型中以项目反馈构造贝叶斯后验状态�
 由公开短视频数据约束，其余参数作为透明的部分校准并接受网格与参数敏感性检验。
 数值均衡复现了早期正支持、成熟期零支付配额的转换。该转换依赖于学习收益相对于
 当期匹配改善收益的下降速度，并非
-由技术进步机械推出。随机扩展进一步表明，当平台对潜在匹配状态的后验精度可以由
-新增项目反馈内生提高且信息边际价值递减时，确定性成熟阈值可推广为依赖创作资本
-与后验均值的精度阈值。
+由技术进步机械推出。在线学习扩展进一步表明，新增项目和测试曝光共同决定反馈精度；
+当热点持续漂移时，平台不能永久学完需求，测试政策因而依赖后验均值、精度与状态
+持久性。两题材模型还显示，热点切换会同时提高刷新信息的必要性并缩短信息寿命，
+因此更快切换未必单调增加探索，成熟政策也可能由单向转换变为状态依赖的循环调整。
 \end{abstract}
 
 \begin{center}
-\textbf{关键词：} 生成式人工智能；内容平台；平台治理；注意力拥堵；动态合同；推荐资本；贝叶斯学习
+\textbf{关键词：} 生成式人工智能；内容平台；平台治理；注意力拥堵；动态合同；推荐资本；在线学习；马尔可夫热点
 \end{center}
 
 \section{引言}
@@ -159,11 +161,18 @@ AI辅助视听内容；但本文不研究基础模型之间的竞争、全经济
 近期动态数据经济学提供了把这一直觉写成递归学习问题的方法。交易生成的信号可以
 通过后验精度压缩为可递归的数据状态，从而避免把完整历史放入状态空间
 \citep{farboodi2022data}；一般马尔可夫决策问题则允许行动通过转移概率影响下一期
-状态与价值\citep{esponda2021misspecified}。本文只借鉴这两类数学结构，不采用
-后者的模型误设与均衡概念。渐进行动学习还强调“当期行动产生公共信息”与“等待后
-再行动”的区别\citep{laiho2025gradual}。由于本文项目在一个经营批次内完成、没有
-不可逆的多年采用承诺，随机扩展保留前一条信息生成机制，但不把后一条等待期权作为
-既有模型能够推出的结论。
+状态与价值\citep{esponda2021misspecified}。更早的变化环境试验模型已经表明，需求
+切换既提高追踪当前状态的必要性，也缩短一条新信息的有效寿命，因而可能出现高试验、
+良好追踪与低试验、局部锁定两种区制\citep{keller1999changing}。推荐系统理论则把
+推荐本身视为信息生产工具：平台可以牺牲部分当期匹配来诱导用户试验
+\citep{che2018recommender}，前瞻型推荐算法据此在探索与利用之间进行动态权衡
+\citep{cao2024exploration}；近期价格---推荐联合模型也令反馈到达率随交易量增加
+\citep{xu2026feedback}。本文借鉴的是“行动改变信号精度和后验转移”这一共同结构，
+而不是上述论文的产品、竞争或披露机制。在线优化文献以变化预算和动态遗憾度量
+非平稳性的代价\citep{besbes2015nonstationary}；本文不采用遗憾最小化作为平台目标，
+平台仍最大化折现利润。渐进行动学习还强调当期行动持续产生公共信息与等待期权的
+区别\citep{laiho2025gradual}。由于本文项目按经营批次结算，在线扩展保留信息生成
+机制，但不把不可逆采用或多年等待期权作为既有模型能够推出的结论。
 
 近期的多模态推荐技术为上述区分提供了工程背景。微信视觉团队发布的
 WeMM-Embedding将文本、图像、视频和交错多模态输入映射到统一表示空间，并报告其
@@ -203,13 +212,15 @@ $t=1,2$经济时期；本文的离散时间设定是为刻画平台跨批次决�
 递减、学习回报递减和自然进入增加三个原始条件出发，给出推荐资本的内生成熟阈值：
 阈值以下实施正补贴，阈值处补贴为零，阈值以上统一非负支付无法实施平台目标，因而
 需要选择性准入。若匹配改善的当期收益足够强，单交叉条件可以失败；所以阶段转换是
-有条件、可检验的结论，而不是由技术进步机械推出。在此基础上，本文将约化的推荐
-资本进一步分解为潜在匹配状态的后验均值与后验精度：项目进入决定反馈信号的精度，
-贝叶斯更新内生生成受控马尔可夫转移，并给出精度阈值存在的充分条件。
+有条件、可检验的结论，而不是由技术进步机械推出。在此基础上，本文把慢速积累的
+推荐资本与快速变化的热点状态分开，并给出两种替代性在线学习规格。高斯规格令项目
+进入与测试曝光共同决定信号精度；热点规格令两类题材按照马尔可夫链切换，并由平台
+选择类别曝光。两者均把完整反馈历史压缩为后验状态，同时说明非平稳需求可能使
+“成熟以后永久停止探索”不再成立。
 
 下文首先建立期内行动顺序并求解终端期均衡，继而分析平台当期合同和目标进入规模的
 可实施性；随后构造两期动态模型，推导动态边际进入楔子，并在无限期环境中证明政策
-阶段转换；继而给出贝叶斯随机学习扩展；最后报告两期与无限期数值均衡、稳健性检验
+阶段转换；继而给出两种非平稳在线学习扩展；最后报告两期、无限期与信念状态数值均衡、稳健性检验
 和可检验的经验预测。
 
 \section{理论模型：项目进入、注意力拥堵与平台动态激励}
@@ -1786,238 +1797,274 @@ $\beta$压缩映射，故式\eqref{eq:无限期Bellman}存在唯一有界连续�
 学习收益递减和拥堵成本，则$\Gamma$未必下降，成熟阈值也可能不存在。这一反例说明
 阶段转换是模型可检验的经济结论，而不是预先写入的技术叙事。
 
-\subsection{贝叶斯随机学习扩展：后验状态与受控马尔可夫转移}
+\subsection{非平稳在线学习：漂移状态与马尔可夫热点}
 \label{sec:bayesian-extension}
 
-前述$M_t$是把匹配准确率、既有反馈和剩余学习空间合并后的约化推荐资本。该表示便于
-推导确定性政策阈值，但没有说明“平台知道什么”以及项目反馈如何改变其认知。本节
-给出一个与基准模型嵌套、而非叠加的随机学习扩展：在本节中，式
-\eqref{eq:目标进入推荐转移}由以下贝叶斯更新替代，不能同时使用$G_M$再计算一次
-学习收益。交易数据作为递归状态的处理借鉴\citet{farboodi2022data}，受控转移核的
-写法借鉴标准马尔可夫决策问题\citep{esponda2021misspecified}；潜在匹配状态、反馈
-技术和政策命题均由本文的内容平台环境重新定义。
-若需要与基准模型对应，可把$M_t$理解为$(\mu_t,\xi_t)$的某个约化指数；随机扩展
-本身不要求这一聚合可逆，也不把后验均值和“知道得多精确”混为同一对象。
+基准模型中的$M_t$是慢速积累的结构性推荐资本：它表示平台的多模态表征、匹配和
+冷启动能力。热点状态则回答另一个问题，即“这一批次什么题材更受欢迎”。即使平台
+拥有很高的$M_t$，热点仍可能改变；反过来，一次热点判断正确也不等于平台永久提高了
+通用推荐能力。为避免把两种学习重复计算，本节采用双时间尺度。外层批次中的
+$(K_t,M_t)$仍由基准模型决定；在给定结构状态$(\bar K,\bar M)$的在线子问题中，
+高频曝光和反馈被聚合为一次测试决策。该子问题对每个结构状态完整求解，并可作为
+外层Bellman方程的条件价值。若直接同时更新$M$与热点信念，必须分别说明哪些反馈
+提高通用学习技术、哪些反馈只更新当前需求判断，不能把同一信息收益记两次。
 
-令$\theta_t\in\mathbb R$表示第$t$批次平台尚未完全观察到的“内容---用户匹配
-状态”。期初公共信息可由正态后验
+“在线学习”在这里不是关于神经网络是否逐次更新权重的工程断言。经济学上的必要
+结构只有三步：平台行动改变当期收益与信号精度，反馈更新后验，后验又改变下一批次
+行动。以下给出两个替代性规格。高斯规格适合把热点理解为连续漂移的总体匹配状态；
+有限状态规格适合直接刻画两类题材之间的热点切换。二者不在同一个数值模型中叠加。
+
+\subsubsection{规格一：高斯漂移、后验精度与内生测试曝光}
+
+令$\theta_t\in\mathbb R$表示第$t$批次尚未完全观察到的内容---用户匹配冲击，
+期初信念为
 \begin{equation}
   \theta_t\mid\mathcal F_t
-  \sim\mathcal N\!\left(\mu_t,\xi_t^{-1}\right)
+  \sim\mathcal N\!\left(\mu_t,\xi_t^{-1}\right),
   \label{eq:匹配状态后验}
 \end{equation}
-概括，其中$\mu_t$是平台对有效匹配状态的条件期望，$\xi_t>0$是后验精度。
-标量$\theta_t$是可解析的基准，适用于聚焦某一题材或用户群的局部分析；若同时研究
-多个题材，应把它推广为向量并用精度矩阵更新，不能把不同用户群的偏好强行压成同一
-标量。
-潜在状态按照
+并按照
 \begin{equation}
   \theta_{t+1}=\rho_\theta\theta_t+\varepsilon_{t+1},
   \qquad
   \varepsilon_{t+1}\sim\mathcal N(0,\sigma_\varepsilon^2),
-  \qquad \sigma_\varepsilon^2>0,
-  \quad 0<\rho_\theta<1
+  \qquad 0<\rho_\theta<1,\quad \sigma_\varepsilon^2>0
   \label{eq:潜在匹配状态转移}
 \end{equation}
-演化。平台在观察$(K_t,\mu_t,\xi_t)$后选择$(n_t,s_t)$；本批项目上线后的
-观看、完播、付费和语义反馈在批次末形成关于本期状态的聚合信号
+演化。$\rho_\theta$衡量热点延续性，$\sigma_\varepsilon$衡量无法由旧数据预测的新冲击。
+与平稳未知参数不同，只要$\sigma_\varepsilon>0$，平台就不可能通过一次学习永久消除
+不确定性。
+
+平台在观察$(\mu_t,\xi_t)$后选择目标进入$n_t$、收入分成$s_t$与测试曝光强度
+$a_t\in[0,1]$。$a_t$汇总推荐系统在一个经营批次内分配给不确定题材、新团队和
+冷启动内容的额外试验流量。为与期内均衡嵌套，令
+\begin{equation}
+  g^G(\mu,a)=[1+\chi_G\tanh(\mu)](1-c_a a^2)>0,
+  \qquad 0<\chi_G<1,\quad 0<c_a<1,
+  \label{eq:高斯当期匹配乘数}
+\end{equation}
+乘在命题\ref{prop:多模态期内均衡}中的$\eta(\bar M)^2$上。第一项表示有利的预期
+匹配状态提高当期有效绩效，双曲正切保证无界高斯信念下的匹配乘数仍有界且为正；
+第二项表示试验曝光挤出部分已知高回报流量。将曝光、努力、
+进入支付和治理工具按照前文解析代回，得到条件期内利润
+$\widehat\Pi^G(\mu,\xi,n,s,a;\bar K,\bar M)$。
+
+项目反馈形成信号
 \begin{equation}
   \bar z_t=\theta_t+u_t,
   \qquad
-  u_t\sim\mathcal N\!\left(0,\mathcal T_t^{-1}\right),
+  u_t\sim\mathcal N\!\left(0,[\mathcal T_t^G]^{-1}\right),
   \label{eq:项目反馈信号}
 \end{equation}
-其中噪声与状态冲击条件独立，且有效信号精度为
+其中基准数值规格采用
 \begin{equation}
-  \mathcal T_t
-  =\mathcal T\!\left(n_t,D_t,\mathcal P_t\right),
-  \qquad
-  \mathcal T(0,D,0)=0,
-  \quad \mathcal T_n,\mathcal T_D,\mathcal T_{\mathcal P}\geq0.
+  \mathcal T_t^G
+  =\tau_G\log(1+n_t)(d_0+d_1D)
+  (1+\gamma_Ga_t)\eta(\bar M),
+  \qquad d_0+d_1=1,
   \label{eq:反馈信号精度}
 \end{equation}
-由于$D_t$和$\mathcal P_t$本身会随目标进入变化，以下比较静态使用沿期内均衡路径的
-总导数，并要求$\dot{\mathcal T}_n:=d\mathcal T_t/dn_t>0$及
-$\dot{\mathcal T}_{nn}\leq0$。
-式\eqref{eq:反馈信号精度}将进入规模、题材差异和有效绩效映射为可用于下一批次的
-独立信息量。$\dot{\mathcal T}_{nn}\leq0$表示相似项目反馈具有冗余性；若项目主要复制
-同一题材，即使$n_t$较大，$D_t$较低也会限制有效信号精度。没有项目进入时不产生
-新增信号，式\eqref{eq:项目反馈信号}相应忽略。
+并满足$\mathcal T^G(0,\cdot)=0$、$\mathcal T_n^G>0$、
+$\mathcal T_{nn}^G<0$和$\mathcal T_a^G>0$。对数项表示相似项目反馈冗余；$D$和
+$\eta(\bar M)$分别提高题材覆盖与信号处理效率。提高$n$与提高$a$都能增加信息，
+但前者还改变创作者进入和拥堵，后者直接牺牲部分当期匹配。
 
-由正态共轭更新，平台在批次末得到本期过滤后状态
+正态共轭更新给出
 \begin{align}
-  \xi_t^+&=\xi_t+\mathcal T_t,\label{eq:本期过滤精度}\\
-  \mu_t^+&=\frac{\xi_t\mu_t+\mathcal T_t\bar z_t}
-  {\xi_t+\mathcal T_t}.
-  \label{eq:本期过滤均值}
-\end{align}
-将这一过滤后状态通过式\eqref{eq:潜在匹配状态转移}向前预测，下一期期初信念为
-\begin{align}
+  \xi_t^+&=\xi_t+\mathcal T_t^G,\label{eq:本期过滤精度}\\
+  \mu_t^+&=\frac{\xi_t\mu_t+\mathcal T_t^G\bar z_t}
+  {\xi_t+\mathcal T_t^G},\label{eq:本期过滤均值}\\
   \xi_{t+1}
-  &=\left(\frac{\rho_\theta^2}{\xi_t+\mathcal T_t}
-  +\sigma_\varepsilon^2\right)^{-1},
-  \label{eq:后验精度转移}\\
-  \mu_{t+1}
-  &=\rho_\theta\mu_t^+.
+  &=\left(\frac{\rho_\theta^2}{\xi_t+\mathcal T_t^G}
+  +\sigma_\varepsilon^2\right)^{-1},\label{eq:后验精度转移}\\
+  \mu_{t+1}&=\rho_\theta\mu_t^+.
   \label{eq:后验均值转移}
 \end{align}
-特别地，条件于当前状态和行动，
+条件于当前状态和行动，
 \begin{equation}
-  \mathbb E_t[\mu_{t+1}]=\rho_\theta\mu_t,
+  \E_t[\mu_{t+1}]=\rho_\theta\mu_t,
   \qquad
-  \operatorname{Var}_t(\mu_{t+1})
-  =\rho_\theta^2
-  \left(\frac{1}{\xi_t}-\frac{1}{\xi_t+\mathcal T_t}\right).
+  \Var_t(\mu_{t+1})
+  =\rho_\theta^2\left(\frac{1}{\xi_t}
+  -\frac{1}{\xi_t+\mathcal T_t^G}\right).
   \label{eq:后验均值分布}
 \end{equation}
-因此，完整反馈历史被$(\mu_t,\xi_t)$压缩，状态
-$S_t=(K_t,\mu_t,\xi_t)$满足马尔可夫性。式\eqref{eq:后验均值分布}还说明，
-更多项目不必提高下一期后验均值，但会使平台在不同信号实现下采取更有针对性的
-后续政策；学习价值来自决策适配，而不是把“更多数据”机械写成更高需求。
+所以更多反馈不机械提高后验均值，而是扩大平台依据不同信号调整未来政策的能力。
+完整历史被$(\mu_t,\xi_t)$压缩，形成受行动控制的马尔可夫转移核$Q_G$。
 
-在期内均衡中，用$\theta$表示约化推荐资本所概括的匹配环境。在期初信念下，
-当期目标进入利润定义为
+给定$(\bar K,\bar M)$，在线价值满足
 \begin{equation}
-  \widehat\Pi(S,n,s)
-  :=\int\widetilde\Pi_\theta(K,n,s)
-  \,\varphi(d\theta\mid\mu,\xi),
-  \label{eq:信念积分利润}
-\end{equation}
-其中$\varphi(\cdot\mid\mu,\xi)$是式\eqref{eq:匹配状态后验}的正态分布。再令
-$Q_B(d\mu'\mid S,n,s)$表示由式\eqref{eq:项目反馈信号}--
-\eqref{eq:后验均值转移}诱导的后验均值分布。创作资本仍按$\widetilde T_K$更新，而
-后验精度按式\eqref{eq:后验精度转移}确定。平台解决
-\begin{equation}
-  W(K,\mu,\xi)
-  =\max_{n\in[0,\bar N],\,s\in[0,1]}
+  W^G(\mu,\xi;\bar K,\bar M)
+  =\max_{\substack{n\in[0,\bar N],\,s\in[0,1]\\a\in[0,1]}}
   \left\{
-    \widehat\Pi(S,n,s)
-    +\beta\int
-    W\!\left(\widetilde T_K,\mu',\xi'\right)
-    Q_B(d\mu'\mid S,n,s)
+    \widehat\Pi^G(\mu,\xi,n,s,a)
+    +\beta\int W^G(\mu',\xi')Q_G(d\mu'\mid\mu,\xi,n,a)
   \right\}.
   \label{eq:贝叶斯Bellman}
 \end{equation}
-给定有界连续利润、紧行动集和弱连续的$Q_B$，式\eqref{eq:贝叶斯Bellman}的
-Bellman算子仍是$\beta$压缩映射。这里使用的是单一平台的贝叶斯马尔可夫决策，
-不是平台之间的马尔可夫完美均衡，也不假定平台使用了错误的转移模型。
+给定有界连续利润、紧行动集和弱连续转移核，Bellman算子是$\beta$压缩映射，故存在
+唯一有界连续价值函数和最优平稳马尔可夫政策。这里的平台按正确转移规律进行贝叶斯
+过滤，不采用\citet{esponda2021misspecified}的模型误设均衡概念。
 
-对每个$(K,\mu,\xi,n)$先优化$s$，将式\eqref{eq:贝叶斯Bellman}花括号内的
-约化目标记为$\overline Q^B(n;K,\mu,\xi)$，并定义
+令$\overline Q^G(n;\mu,\xi)$表示对$(s,a)$优化后的Bellman目标，并定义
 \begin{equation}
-  \Omega^B(n;K,\mu,\xi)
-  :=\frac{\partial\overline Q^B(n;K,\mu,\xi)}{\partial n}.
+  \Omega^G(n;\mu,\xi)
+  :=\frac{\partial\overline Q^G(n;\mu,\xi)}{\partial n}.
   \label{eq:贝叶斯动态边际进入}
 \end{equation}
-在可微条件下，$\Omega^B$可写成
+若把在线子问题嵌回外层资本积累模型，新增项目的完整边际价值为
 \begin{equation}
-  \Omega^B
-  =\underbrace{\widehat\Pi_n}_{\text{当期边际利润}}
-  +\underbrace{\beta\mathbb E[W_K]\widetilde T_{K,n}}
+  \Omega^{G,\mathrm{full}}
+  =\underbrace{\widehat\Pi_n^G}_{\text{当期边际利润}}
+  +\underbrace{\beta\E[V_K]T_{K,n}}
   _{\text{创作资本价值}}
-  +\underbrace{\beta\mathcal I_n}_{\text{反馈信息价值}},
+  +\underbrace{\beta\E[V_M]T_{M,n}}
+  _{\text{通用推荐资本价值}}
+  +\underbrace{\beta\mathcal I_n^G}_{\text{热点信息价值}}.
   \label{eq:贝叶斯边际价值分解}
 \end{equation}
-其中
+最后一项只度量对瞬时热点状态的后验适配，不能再次包含$T_M$。当提高$n$或$a$只增加
+信号精度且平台可以忽略额外信号时，Blackwell排序给出弱非负的信息价值
+\citep{blackwell1953experiments}。测试曝光的内点条件为
 \begin{equation}
-  \mathcal I_n
-  :=\frac{\partial}{\partial n}
-  \int W(\widetilde T_K,\mu',\xi')Q_B(d\mu'\mid\cdot)
-  -\mathbb E[W_K]\widetilde T_{K,n}.
-  \label{eq:信息生成边际价值}
+  -\widehat\Pi_a^G
+  =\beta\frac{\partial}{\partial a}
+  \int W^G(\mu',\xi')Q_G(d\mu'\mid\mu,\xi,n,a),
+  \label{eq:测试曝光一阶条件}
 \end{equation}
-若提高$n$只增加式\eqref{eq:反馈信号精度}中的有效精度且平台可以忽略额外信号，
-则新增信号在Blackwell意义下弱优于其删减版本，故$\mathcal I_n\geq0$
-\citep{blackwell1953experiments}。但$\mathcal I_n$随既有精度下降并非贝叶斯更新自动
-保证；它还需要未来适配收益对精度呈凹性。本文因此把该性质写成可核验的充分条件，
-而不把它当作概率公式本身的结论。
+即当期匹配损失等于未来适配收益；边界行动以相应不等式刻画。式
+\eqref{eq:测试曝光一阶条件}说明在线试验是经济选择，不是外生指定算法。
 
-令$s^B(n;K,\mu,\xi)$为形成$\overline Q^B$的条件最优收入分成，并定义
-\begin{equation*}
-  \overline\Psi^B(n;K,\mu,\xi)
-  :=\Psi^B\!\left(n;s^B(n;K,\mu,\xi),K,\mu,\xi\right).
-\end{equation*}
-假定$\overline\Psi_n^B>0$。相应的零补贴自然进入规模
-$n^{0,B}(K,\mu,\xi)$由$\overline\Psi^B=0$确定。
-
-\begin{assumption}[随机学习下的单交叉]
+令$n^{0,G}(\mu,\xi)$为条件最优$(s,a)$下的零支付自然进入规模。为保留基准模型的
+政策阈值，采用以下可核验而非自动成立的条件。
+\begin{assumption}[高斯在线学习下的单交叉]
   \label{ass:贝叶斯单交叉}
-  固定$(K,\mu)$，$\overline Q^B$关于$n$严格凹，并在相关精度区间内满足
+  $\overline Q^G$关于$n$严格凹，并在相关精度区间满足
   \begin{equation}
-    \Omega_n^B<0,
+    \Omega_n^G<0,
     \qquad
-    \Omega_\xi^B<0,
+    \Omega_\xi^G<0,
     \qquad
-    n_\xi^{0,B}\geq0.
+    n_\xi^{0,G}\geq0.
     \label{eq:贝叶斯单交叉条件}
   \end{equation}
-  对所有相关状态，$n^{0,B}\in(0,\bar N)$。
-  此外存在$\underline\xi<\overline\xi$，使自然进入处的$\Omega^B$
-  在两个端点分别为正和负。
+  自然进入处的$\Omega^G$在某个$\underline\xi<\overline\xi$的两端异号。
 \end{assumption}
 
-假设\ref{ass:贝叶斯单交叉}的经济内容是：既有认知越精确，再增加一个项目带来的
-适配价值下降得越快，而更准确的匹配不会减少创作者的零补贴进入。一个透明的充分
-条件可在“后验精度是未来收益的充分统计量”这一特例中给出。记
-\begin{equation*}
-  \mathfrak p(\xi,\mathcal T)
-  :=\left(\frac{\rho_\theta^2}{\xi+\mathcal T}
-  +\sigma_\varepsilon^2\right)^{-1}.
-\end{equation*}
-直接求导得到
-\begin{equation*}
-  \mathfrak p_{\mathcal T}
-  =\frac{\rho_\theta^2}
-  {[\rho_\theta^2+\sigma_\varepsilon^2(\xi+\mathcal T)]^2}>0,
-  \qquad
-  \mathfrak p_{\mathcal T\xi}
-  =-\frac{2\rho_\theta^2\sigma_\varepsilon^2}
-  {[\rho_\theta^2+\sigma_\varepsilon^2(\xi+\mathcal T)]^3}<0.
-\end{equation*}
-若当期利润在$(n,\xi)$上具有递减差异，未来收益关于$\mathfrak p$递增且凹，
-$\dot{\mathcal T}_n>0$且不随$\xi$增加，并且其他跨项不为正，则
-$\mathfrak p_{\mathcal T}>0$与$\mathfrak p_{\mathcal T\xi}<0$共同意味着已有精度
-越高，新增信号对下一期精度的提升越小；收益凹性进一步强化这一递减效应。若后验
-均值也影响未来行动，这一凹性不再自动成立，应直接检验
-式\eqref{eq:贝叶斯单交叉条件}。
-
-\begin{proposition}{后验精度阈值与随机政策区制}
+\begin{proposition}{条件精度阈值、测试曝光与非永久成熟}
   \label{prop:贝叶斯精度阈值}
-  在假设\ref{ass:贝叶斯单交叉}下，对每个固定$(K,\mu)$存在唯一
-  $\xi^\dagger(K,\mu)\in(\underline\xi,\overline\xi)$，使得
-  \begin{align*}
-    \xi<\xi^\dagger(K,\mu)
-    &\Longrightarrow n^{d,B}>n^{0,B}\quad\text{且实施正固定支持},\\
-    \xi=\xi^\dagger(K,\mu)
-    &\Longrightarrow n^{d,B}=n^{0,B}\quad\text{且固定支付为零},\\
-    \xi>\xi^\dagger(K,\mu)
-    &\Longrightarrow n^{d,B}<n^{0,B}\quad\text{且需要选择性准入或进入费}.
-  \end{align*}
-  其中$n^{d,B}$是$\overline Q^B$在$[0,\bar N]$上的唯一最大化点。
+  在假设\ref{ass:贝叶斯单交叉}下，对每个固定$(\bar K,\bar M,\mu)$存在唯一
+  $\xi^\dagger(\bar K,\bar M,\mu)$，使$\xi<\xi^\dagger$时目标进入高于自然进入并需
+  正固定支持，$\xi=\xi^\dagger$时固定支付为零，$\xi>\xi^\dagger$时目标进入低于
+  自然进入并需选择性准入或进入费。与此同时，式\eqref{eq:后验精度转移}满足
+  \begin{equation*}
+    \xi_{t+1}\leq \sigma_\varepsilon^{-2},
+  \end{equation*}
+  因而$\sigma_\varepsilon>0$时不存在吸收性的完全信息状态；是否长期停留在阈值某一侧
+  取决于过程噪声、内生测试和后验均值路径。
 \end{proposition}
 
 \begin{proof}
-  定义自然进入处的随机边际价值
-  \begin{equation*}
-    \Gamma^B(K,\mu,\xi)
-    =\Omega^B\!\left(n^{0,B}(K,\mu,\xi);K,\mu,\xi\right).
-  \end{equation*}
-  由式\eqref{eq:贝叶斯单交叉条件}，
-  \begin{equation*}
-    \Gamma_\xi^B
-    =\Omega_\xi^B+\Omega_n^B n_\xi^{0,B}<0.
-  \end{equation*}
-  端点异号与连续性给出唯一零点$\xi^\dagger(K,\mu)$。再由
-  $\overline Q^B$关于$n$严格凹，$\Gamma^B$的正、零、负分别确定$n^{d,B}$位于
-  $n^{0,B}$的右侧、等于或位于其左侧。最后由$\overline\Psi_n^B>0$以及自然进入处
-  $\overline\Psi^B=0$得到固定支付的符号和准入工具结论。
+  定义自然进入处的边际价值
+  $\Gamma^G(\mu,\xi)=\Omega^G(n^{0,G}(\mu,\xi);\mu,\xi)$。由
+  式\eqref{eq:贝叶斯单交叉条件}，
+  $\Gamma_\xi^G=\Omega_\xi^G+\Omega_n^G n_\xi^{0,G}<0$；端点异号和连续性给出
+  唯一零点，严格凹性再确定目标进入位于自然进入的哪一侧。精度上界直接来自
+  式\eqref{eq:后验精度转移}的分母不小于$\sigma_\varepsilon^2$。
 \end{proof}
 
-命题\ref{prop:贝叶斯精度阈值}没有声称$\mu$越高阈值必然越高或越低，因为该方向
-取决于平台对有利匹配状态的当期收益和未来试验价值。它也没有直接引入
-\citet{laiho2025gradual}中的等待期权：该机制要求行动不可逆或持续占用未来容量，
-而本文项目在批次末结算。若未来把短剧项目建模为跨期版权承诺，再增加“已承诺项目
-存量”状态才是逻辑一致的做法。
+命题\ref{prop:贝叶斯精度阈值}是条件命题。后验均值会改变当期进入收益，测试曝光又
+内生改变精度转移，所以$\Omega_\xi^G<0$必须由原始函数或数值政策核验，不能由
+贝叶斯公式直接推出。尤其是，在悲观状态中牺牲已有匹配的机会成本较低，平台可能
+反而更愿意试验；因此“精度低就一定多测试”也不是无条件结论。
+
+\subsubsection{规格二：两题材马尔可夫热点与探索---利用}
+
+高斯状态适合总体需求缓慢漂移，但不能直接表示一个题材退潮而另一个题材变热。为此，
+令真实热点$h_t\in\{A,B\}$按照对称马尔可夫链变化：
+\begin{equation}
+  \Prb(h_{t+1}\neq h_t)=\lambda,
+  \qquad 0<\lambda<\frac12.
+  \label{eq:热点切换}
+\end{equation}
+平台的充分统计量是
+$p_t=\Prb(h_t=A\mid\mathcal F_t)$。行动$a_t\in[0,1]$现在表示投向A类内容的
+曝光比例，$1-a_t$投向B类。当前曝光与真实热点一致的期望比例为
+\begin{equation}
+  m(p,a)=pa+(1-p)(1-a),
+  \label{eq:热点匹配概率}
+\end{equation}
+数值模型令$g^H(p,a)=1+\chi_H[m(p,a)-1/2]$乘在$\eta(\bar M)^2$上。若$p>1/2$，
+把更多曝光投向A能够提高当期预期匹配；但过度倾斜减少两类题材之间的比较反馈。
+
+平台观察信号$z_t\in\{A,B\}$，其正确率为
+\begin{equation}
+  \gamma(n,a;\bar M)
+  =\frac12+\bar\gamma\left[1-\exp\left\{-\tau_Hn\eta(\bar M)
+  \left(\underline d+(1-\underline d)4a(1-a)\right)\right\}\right],
+  \label{eq:热点信号正确率}
+\end{equation}
+其中$0<\bar\gamma<1/2$且$0<\underline d<1$。即使全部曝光投向一类，平台仍从
+该类表现获得少量信息；平衡测试使$4a(1-a)$达到1，从而最有利于识别相对热点。
+更多项目和更高推荐能力提高同一曝光配置的信息量。
+
+观察$z=A$与$z=B$后的过滤信念分别为
+\begin{align}
+  p_A^+
+  &=\frac{p\gamma}{p\gamma+(1-p)(1-\gamma)},\\
+  p_B^+
+  &=\frac{p(1-\gamma)}{p(1-\gamma)+(1-p)\gamma}.
+  \label{eq:热点贝叶斯更新}
+\end{align}
+再考虑批次间热点切换，下一期信念为
+\begin{equation}
+  p'_{z}=\lambda+(1-2\lambda)p_z^+,
+  \qquad z\in\{A,B\}.
+  \label{eq:热点信念预测}
+\end{equation}
+因此即使当前后验接近0或1，只要$\lambda>0$，下一期信念也会被拉回
+$[\lambda,1-\lambda]$。条件价值满足
+\begin{equation}
+  W^H(p;\bar K,\bar M)
+  =\max_{\substack{n\in[0,\bar N],\,s\in[0,1]\\a\in[0,1]}}
+  \left\{
+  \widehat\Pi^H(p,n,s,a)
+  +\beta\sum_{z\in\{A,B\}}\Prb(z\mid p,n,a)W^H(p'_z)
+  \right\}.
+  \label{eq:热点Bellman}
+\end{equation}
+该问题是一维信念状态上的部分可观察马尔可夫决策问题。与
+\citet{che2018recommender}相比，本文的推荐曝光同时影响创作者进入和平台拥堵；
+与\citet{cao2024exploration}相比，本文保留平台固定支付、收入分成和选择性准入，
+但不引入平台间竞争。
+
+\begin{proposition}{对称热点下的政策对称性与持续刷新}
+  \label{prop:热点政策对称性}
+  若A、B两类除标签外具有相同的创作者成本、内容质量和收益原语，则存在对称最优政策
+  满足
+  \begin{equation*}
+    a^*(1-p)=1-a^*(p),
+    \qquad n^*(1-p)=n^*(p),
+    \qquad s^*(1-p)=s^*(p).
+  \end{equation*}
+  若最优曝光唯一，则$a^*(1/2)=1/2$。此外，$\lambda>0$时信念的支持不含吸收性的
+  0或1；政策可以随热点冲击反复进入测试区和定向利用区，而不必沿着单一成熟路径
+  永久停止探索。
+\end{proposition}
+
+\begin{proof}
+  将标签A、B互换，把$p$映射为$1-p$、$a$映射为$1-a$。式
+  \eqref{eq:热点匹配概率}、\eqref{eq:热点信号正确率}和转移概率均不变，故Bellman
+  算子保持这一对称性；压缩映射的唯一价值函数亦对称，最优政策集合按上述方式映射。
+  唯一性给出$p=1/2$处$a^*=1/2$。非吸收性由式\eqref{eq:热点信念预测}直接得到。
+\end{proof}
+
+热点切换速度$\lambda$对探索没有一般的单调符号。更快切换使旧后验更快失效，产生
+“需要刷新”的力量；但也缩短本期信号可以改善未来决策的期限，降低信息资产的耐久性。
+这正是变化环境试验中可能出现不同追踪区制的原因\citep{keller1999changing}。因此，
+本文不预设“热点变化越快，测试越多”，而在数值部分报告两种力量的净效应。高斯规格
+与热点规格共同说明：稳定环境下的精度阈值可以作为局部政策边界，但持续变化的内容
+市场更可能表现为状态依赖、可逆的扶持与测试政策。
 %%%
 \section{数值均衡求解、参数约束与稳健性}
 \label{sec:numerical}
@@ -2222,7 +2269,101 @@ $\Psi^R<0$时可以收取进入费；仅非负支持的政策不能把进入降�
   \end{minipage}
 \end{table}
 
-全部计算由\path{scripts/solve_dynamic_equilibria.py}生成；参数、残差、参考状态和敏感性
+\subsection{在线学习均衡：条件求解、政策函数与随机路径}
+
+在线扩展采用前文的双时间尺度，而不是直接把$(K,M,\mu,\xi)$或$(K,M,p)$全部放入
+同一个高维网格。具体而言，基准模型先决定慢速结构状态$(\bar K,\bar M)$；在线子问题
+在该状态下完整求解进入、分成与测试曝光的无限期信念状态均衡。这样既保留热点反馈
+对未来行动的动态价值，也不会把同一反馈同时记入$M'$和热点后验。高斯规格取
+$(\bar K,\bar M)=(1.5,3.0)$、$\rho_\theta=0.88$、$\sigma_\varepsilon=0.16$、
+$\chi_G=0.55$、$c_a=0.06$、$\tau_G=1.35$、$\gamma_G=2.50$及
+$(d_0,d_1)=(0.55,0.45)$。状态网格为$25\times17$个$(\mu,\xi)$点，行动网格为
+$17\times9\times9$个$(n,s,a)$点；后验均值积分使用五节点Gauss--Hermite求积和
+双线性插值。基准解在211次更新后收敛，Bellman残差为
+$8.54\times10^{-8}$，且$\max\zeta^R=3.355<c=5$。
+
+图\ref{fig:高斯在线学习}显示，测试曝光并不只是后验精度的函数。在悲观且低精度的
+状态$(\mu,\xi)=(-0.3,3)$，平台选择$(n,a,s)=(1.25,0.50,0.375)$，单位固定支持为
+$0.010$；当$\mu=0$且$\xi=3$时，平台选择$(1.50,0,0.375)$。直觉是，悲观状态中
+把流量从当前最优匹配移向测试的机会成本较低，而中性状态已有较高当期匹配收益。
+固定$\mu=-0.3$时，测试曝光随精度上升，从$\xi=3$时的$0.50$降至$\xi\approx14$
+附近的$0.125$，在更高精度处降为零。因此数值结果支持的是“均值与精度共同决定
+测试区”，而不是无条件的“越不确定越测试”。以固定随机种子模拟90个批次，平均测试
+曝光为$0.057$、平均进入为$1.419$，后验均值对真实状态的均方根误差为$0.216$；
+路径没有触及$\mu$或$\xi$网格边界。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/online_gaussian_learning_solution.pdf}
+  \caption{高斯漂移状态下的在线学习均衡}
+  \label{fig:高斯在线学习}
+  \begin{minipage}{0.94\textwidth}
+    \footnotesize\raggedright
+    注：上排为条件政策函数，下排为一条90批次随机路径。测试曝光$a$牺牲部分当期
+    匹配，但通过式\eqref{eq:反馈信号精度}提高下一期后验适配；进入和固定支持由
+    同一组期内创作者均衡原语反推。
+  \end{minipage}
+\end{figure}
+
+马尔可夫热点规格取$\lambda=0.08$、$\chi_H=0.35$、$\bar\gamma=0.45$、
+$\tau_H=0.72$与$\underline d=0.15$，在81个信念点和
+$17\times9\times21$个$(n,s,a)$行动上求解。早期结构状态$(K,M)=(0.5,0.5)$与
+成熟状态$(3.5,8.5)$的Bellman残差分别为$8.89\times10^{-9}$和
+$9.13\times10^{-9}$。在$p=0.5$时，对称性使$a=0.5$，比较测试强度
+$4a(1-a)$等于1；早期进入为1并支付$0.388$，成熟期进入为3、自然进入为3.088，
+因而使用零支付配额留下$0.088$的缺口。在$p=0.1$或$0.9$时，成熟平台将曝光全部
+投向更可能的热点，测试强度为零，最优进入2.5低于自然进入3.466。这里的“成熟”
+只改变慢速结构资本；热点信念仍会因$\lambda>0$反复回到比较测试区。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/online_markov_hotspot_solution.pdf}
+  \caption{两题材马尔可夫热点下的探索---利用均衡}
+  \label{fig:马尔可夫热点学习}
+  \begin{minipage}{0.94\textwidth}
+    \footnotesize\raggedright
+    注：$a$为A类曝光份额，$4a(1-a)$为两类之间的比较测试强度。上排比较政策函数，
+    下排为早期结构状态下100批次随机路径；进入在右下图除以4以便与曝光份额同轴展示。
+  \end{minipage}
+\end{figure}
+
+表\ref{tab:在线学习敏感性}进一步区分信息持久性与信息质量。高斯模型中，在诊断状态
+$(\mu,\xi)=(-0.3,3)$，降低持久性把测试曝光从$0.50$降至$0.125$，提高测试成本则
+降至$0.375$；在同一均值、较高精度$\xi\approx14$时，各情形测试均为零。热点模型
+在$p=0.65$处把$\lambda$从$0.02$提高至$0.08$，比较测试强度由$0.938$降至$0.750$；
+当$\lambda=0.18$或信号上限降至$0.30$时，该状态转为完全利用。该组结果说明，
+刷新需求并不自动压倒信息寿命缩短：越快变化或越弱反馈都可能降低一次测试的未来
+价值。基准热点随机路径的平均测试强度为$0.389$，平台信念对真实热点的分类准确率
+为$0.760$。这些数值是机制校准而不是对现实推荐算法权重的估计。
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{在线学习政策的参数敏感性}
+  \label{tab:在线学习敏感性}
+  \begin{tabular}{llccc}
+    \toprule
+    规格 & 情形 & 诊断状态 & 测试政策 & Bellman残差 \\
+    \midrule
+    高斯 & 基准 & $(\mu,\xi)=(-0.3,3)$ & $a=0.500$ & $2.75\times10^{-7}$ \\
+    高斯 & 低持久性$\rho_\theta=0.70$ & 同上 & $a=0.125$ & $2.75\times10^{-7}$ \\
+    高斯 & 高测试成本$c_a=0.12$ & 同上 & $a=0.375$ & $2.75\times10^{-7}$ \\
+    热点 & 慢切换$\lambda=0.02$ & $p=0.65$ & $4a(1-a)=0.938$ & $2.71\times10^{-8}$ \\
+    热点 & 基准$\lambda=0.08$ & 同上 & $4a(1-a)=0.750$ & $2.64\times10^{-8}$ \\
+    热点 & 快切换$\lambda=0.18$ & 同上 & $4a(1-a)=0$ & $2.60\times10^{-8}$ \\
+    热点 & 弱反馈$\bar\gamma=0.30$ & 同上 & $4a(1-a)=0$ & $2.61\times10^{-8}$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.96\textwidth}
+    \footnotesize\raggedright
+    注：高斯敏感性使用$19\times13$状态网格和与基准相同的$17\times9\times9$
+    行动网格，停止容差为$3\times10^{-7}$；热点敏感性使用61个信念点和较粗行动网格。
+    高斯各情形在$(\mu,\xi)=(-0.3,14)$处均选择$a=0$。
+  \end{minipage}
+\end{table}
+
+基础动态均衡由\path{scripts/solve_dynamic_equilibria.py}生成，两种在线学习均衡由
+\path{scripts/solve_online_learning_extensions.py}生成；参数、残差、参考状态和敏感性
 结果保存在\path{output/computation/}，公开代码与数据的原始压缩包、校验值和使用边界
 记录在\path{literature_recent_discrete_models/replication_code_sources/README.md}。这些
 文件使数值结论可以复算，同时保留“算法借鉴”与“模型原创”的边界。
@@ -2231,7 +2372,7 @@ $\Psi^R<0$时可以收取进入费；仅非负支持的政策不能把进入降�
 \label{sec:emp}
 
 \subsection{理论预测}
-模型产生五组可以区分的经验预测。
+模型产生六组可以区分的经验预测。
 
 第一，普惠固定支付或收入保底上升会扩大项目进入，但在推荐资本和内容构成不变时，
 会降低单项目平均曝光、人工质量努力和变量收益。该稀释效应应当在题材同质度较高、
@@ -2252,21 +2393,31 @@ $s^\dagger=(v+r)/(2r)$。平台非分账价值$v$越高，转折点越靠右；�
 重要性上升。若观察到技术升级以后普惠补贴反而扩大，则表明匹配改善带来的当期
 边际收益可能超过数据学习收益递减和拥堵成本，式\eqref{eq:原始分量充分条件}不成立。
 
-第五，在随机学习扩展中，新增项目对后续决策准确率的影响应当在初始预测不确定性高、
-且项目覆盖题材更分散时更强。若用冷启动样本量衡量$n_t$、用样本外预测误差的倒数
-代理$\xi_t$，则式\eqref{eq:反馈信号精度}预言$n_t$与后续预测改善正相关，但
-这一关系随$\xi_t$提高而减弱；同一规模下，较高的$D_t$应带来更大的改善。该预测
-同时区分“多收集重复反馈”和“增加有效独立信息”。
+第五，在高斯在线学习扩展中，新增项目与测试曝光都提高信号精度，但二者的政策含义
+不同。若用冷启动项目量衡量$n_t$、用探索流量占比衡量$a_t$、用样本外预测误差的
+倒数代理$\xi_t$，式\eqref{eq:反馈信号精度}预言$n_t$、$a_t$与下一批次预测改善
+正相关，且同一项目量下题材多样性$D_t$越高，信息增量越大。不过最优$a_t$还取决于
+后验均值$\mu_t$所决定的机会成本，因而低精度本身不足以推出高测试；经验上应同时
+控制平台对当前热点收益的预测，而不能只回归不确定性。
+
+第六，在马尔可夫热点扩展中，观察到题材切换以后，旧信念先失准，平台随后在两类
+题材之间增加比较曝光并重新定向。该调整可以反复发生，而不是只在产业早期出现一次。
+信号更准确、热点持续时间更长时，一次比较测试更能改善未来匹配；但切换概率$\lambda$
+对测试强度没有一般的单调符号。因而可检验对象不是“热点越快必然越探索”，而是
+测试政策如何同时响应预测误差、估计的热点持续期以及反馈质量。
 
 \subsection{变量构造与识别思路}
 经验研究可以使用“项目—平台—批次”面板。核心结果变量包括批次进入项目数、
 单项目测试曝光、后续推荐曝光、有效观看或付费转化、人工精修投入以及项目退出。
 固定支付$I_t$可以由制作补贴、保底金额或平台投资计划构造；收入分成$s_t$由合同
 条款构造；平台推荐资本$M_t$可由明确的算法版本更新、冷启动识别准确率或上线前后
-的匹配指标代理。在随机扩展中，$\mu_t$可由平台在批次开始时对题材或人群转化率的
+的匹配指标代理。在高斯扩展中，$\mu_t$可由平台在批次开始时对题材或人群转化率的
 预测构造，$\xi_t$可由预测区间宽度、后验方差或滚动样本外误差的倒数代理；二者
 应当分别测量“平台预计什么会成功”和“平台对此有多确定”，不能合并为同一个准确率
-指标。
+指标。测试曝光$a_t$应使用平台明确标记的探索桶、随机流量或冷启动保留流量构造，
+不能把事后获得大量推荐的成功内容误记为事前探索。马尔可夫扩展还需要先按题材份额
+构造热点指标$h_t$，用相邻批次热点变化估计$\lambda$，并用平台期初预测构造$p_t$；
+若只有最终播放量而没有期初预测或曝光规则，无法把探索选择与需求冲击区分开。
 
 内容多样性可以利用公开多模态表征模型生成项目向量。令标准化后的项目表示为$z_i$，
 则批次多样性的一种可操作定义是
@@ -2312,13 +2463,16 @@ WeMM-Embedding可以用于生成文本、封面和视频的统一表示\citep{zh
 人工智能因此未必削弱平台的中介作用；在内容供给变得廉价以后，平台的识别和治理
 能力反而可能更重要。
 
-随机学习扩展为这一机制补充了信息基础。平台对潜在内容---用户匹配状态的认知由
-后验均值$\mu_t$和后验精度$\xi_t$概括，项目数量、多样性与有效绩效共同决定
-反馈信号精度。平台据此面对一个受控马尔可夫决策问题：新增项目不仅改变当期利润和
-创作资本，也通过更有信息量的后验分布改善未来政策适配。当这一信息边际价值随既有
-精度递减时，确定性成熟阈值推广为$\xi^\dagger(K,\mu)$；当凹性或单交叉失败时，
-随机阈值也可能不存在。因而，贝叶斯更新提供的是可检验的状态转移，而不是保证政策
-必然转换的数学装饰。
+两种在线学习扩展为这一机制补充了信息基础。高斯规格用后验均值$\mu_t$与精度
+$\xi_t$概括持续漂移的匹配状态，平台在进入规模以外内生选择测试曝光。当信息边际
+价值随既有精度递减且单交叉成立时，确定性成熟阈值推广为条件阈值
+$\xi^\dagger(\bar K,\bar M,\mu)$；过程噪声又使平台无法永久达到完全信息。
+马尔可夫规格则把热点写成两类题材之间的随机切换，曝光份额既决定当前命中概率，
+也决定相对题材信号的质量。其信念和政策随新冲击可逆调整，因而“结构资本成熟”
+不等于“此后永远停止探索”。两个规格均表明，新增项目与测试曝光是替代或互补的
+信息生产工具；更快热点切换同时提高刷新需要并缩短信号寿命，所以净效应必须由原语
+和数据判定。贝叶斯更新与马尔可夫转移在这里提供可检验的状态演化，而不是保证某种
+政策方向的数学装饰。
 
 上述结论是关于利润最大化平台的正向预测，而不是“选择性准入必然提高社会福利”的
 规范判断。平台治理研究已经表明，平台的收费方式和竞争激励可能使准入、推荐或质量
@@ -2330,9 +2484,11 @@ $M>M^\dagger$只意味着统一非负支付无法实施平台自己的目标进�
 
 模型也具有明确边界。它是单平台的局部均衡模型，将用户规模和潜在项目池视为给定，
 并令每期进入的创作者主要进行当期优化；它没有处理创作者多归属、基础模型定价、
-版权责任、平台自制内容以及用户对AI标签的偏好。数值部分求解的是一组经过数据矩
-约束的部分校准均衡，而不是结构估计；其中短视频类别数据只约束多样性，不能识别
-现实AI短剧合同或福利参数。因而，本文最适合解释那些由平台集中分发、依赖推荐冷启动、存在标准化
+版权责任、平台自制内容以及用户对AI标签的偏好。在线数值模型还把慢速结构状态
+条件化处理，高斯规格使用有限数值网格，热点规格只保留两个对称题材；这些选择适合
+核验机制，却不能替代包含多题材、用户异质性和结构资本共同转移的估计模型。数值
+部分求解的是一组经过数据矩约束的部分校准均衡，而不是结构估计；其中短视频类别
+数据只约束多样性，不能识别现实AI短剧合同、推荐算法权重或福利参数。因而，本文最适合解释那些由平台集中分发、依赖推荐冷启动、存在标准化
 扶持或分成并能从项目反馈中学习的生成式内容市场。AI短剧满足这些条件，是优先的
 经验检验场景；向其他内容类别外推时，应首先验证上述制度条件是否成立。
 
@@ -2352,9 +2508,12 @@ $M>M^\dagger$只意味着统一非负支付无法实施平台自己的目标进�
   \item $\Psi^R$：实施目标进入规模所需的固定支付；$n^{0,R}$：零补贴自然进入规模；$n^d$：有符号转移支付辅助基准中的动态目标进入规模。
   \item $\Omega_1$与$\overline\Omega$：两期和无限期模型中的动态边际进入价值；$M^\dagger$：普惠支持转向选择性准入的推荐资本阈值。
   \item $V_t(K_t,M_t)$与$V(K,M)$：有限期和无限期平台价值函数。
-  \item $\theta_t$：随机扩展中的潜在内容---用户匹配状态；$\mu_t$与$\xi_t$：其后验均值与后验精度。
-  \item $\mathcal T_t$：当期项目反馈的有效信号精度；$Q_B$：贝叶斯更新诱导的受控马尔可夫转移核。
-  \item $W(K,\mu,\xi)$：随机学习扩展中的平台价值函数；$\Omega^B$与$\xi^\dagger(K,\mu)$：随机动态边际进入价值与后验精度阈值。
+  \item $\theta_t$：高斯扩展中的潜在内容---用户匹配状态；$\mu_t$与$\xi_t$：其后验均值与后验精度。
+  \item $a_t$：高斯扩展中的测试曝光强度，或热点扩展中的A类曝光份额；其含义由规格区分。
+  \item $\mathcal T_t^G$与$Q_G$：高斯扩展的反馈精度与受控后验转移核；$W^G(\mu,\xi;\bar K,\bar M)$：条件在线价值。
+  \item $\Omega^G$与$\xi^\dagger(\bar K,\bar M,\mu)$：高斯动态边际进入价值与条件后验精度阈值。
+  \item $h_t\in\{A,B\}$：真实热点；$p_t=\Prb(h_t=A\mid\mathcal F_t)$：热点信念；$\lambda$：热点切换概率。
+  \item $\gamma(n,a;\bar M)$：二元热点信号正确率；$W^H(p;\bar K,\bar M)$：马尔可夫热点条件价值。
 \end{itemize}
 
 \section{离散时期的解释}
@@ -2411,10 +2570,57 @@ $(n,s)$下由命题\ref{prop:多模态期内均衡}解析代回。
   \end{algorithmic}
 \end{algorithm}
 
+算法\ref{alg:高斯在线VFI}在给定$(\bar K,\bar M)$时求解高斯信念状态。后验精度
+由行动确定，下一期后验均值为条件正态变量；五节点Gauss--Hermite求积近似这一期望，
+二维插值评价非网格$(\mu',\xi')$。匹配乘数中的$\tanh(\mu)$保证无界理论状态下收益
+有界；数值网格只近似高概率区域，随机路径的边界命中率另行报告。
+
+\begin{algorithm}[H]
+  \caption{高斯漂移状态的信念空间值函数迭代}
+  \label{alg:高斯在线VFI}
+  \begin{algorithmic}[1]
+    \Require 网格$\mathcal G_\mu\times\mathcal G_\xi$与$\mathcal G_n\times\mathcal G_s\times\mathcal G_a$；求积节点$(u_j,w_j)_{j=1}^5$
+    \For{每个状态$(\mu,\xi)$和行动$(n,s,a)$}
+      \State 解析计算期内均衡、实施支付$\Psi^R$、利润$\widehat\Pi^G$和$\mathcal T^G$
+      \State 由式\eqref{eq:后验精度转移}计算$\xi'$，由式\eqref{eq:后验均值分布}计算后验均值标准差$\sigma_{\mu'}$
+    \EndFor
+    \State 初始化$W^{G,(0)}=0$
+    \Repeat
+      \State 对每个行动计算$\widehat\Pi^G+\beta\sum_{j=1}^5w_j\widehat W^{G,(r)}(\rho_\theta\mu+\sqrt{2}\sigma_{\mu'}u_j,\xi')$
+      \State 对$(n,s,a)$取最大值得到$W^{G,(r+1)}$并保存政策
+    \Until{$\lVert W^{G,(r+1)}-W^{G,(r)}\rVert_\infty<10^{-7}$}
+    \State 再应用一次Bellman算子报告残差，并按真实状态和信号方程向前模拟
+  \end{algorithmic}
+\end{algorithm}
+
+\clearpage
+算法\ref{alg:热点在线VFI}利用二元信号的有限支持直接求和，不需要数值积分。对称
+环境下，求解器还逐点核验$a^*(1-p)=1-a^*(p)$与进入政策的镜像对称性。
+
+\begin{algorithm}[H]
+  \caption{两题材马尔可夫热点的信念空间值函数迭代}
+  \label{alg:热点在线VFI}
+  \begin{algorithmic}[1]
+    \Require 信念网格$\mathcal G_p$，行动网格$\mathcal G_n\times\mathcal G_s\times\mathcal G_a$，切换概率$\lambda$
+    \For{每个$p$与$(n,s,a)$}
+      \State 计算期内利润、信号正确率$\gamma(n,a;\bar M)$及$\Prb(z=A)$、$\Prb(z=B)$
+      \State 按式\eqref{eq:热点贝叶斯更新}和式\eqref{eq:热点信念预测}计算$p_A'$与$p_B'$
+    \EndFor
+    \State 初始化$W^{H,(0)}=0$
+    \Repeat
+      \State 对每个行动计算$\widehat\Pi^H+\beta[\Prb(z=A)\widehat W^{H,(r)}(p_A')+\Prb(z=B)\widehat W^{H,(r)}(p_B')]$
+      \State 对$(n,s,a)$取最大值得到$W^{H,(r+1)}$并保存政策
+    \Until{$\lVert W^{H,(r+1)}-W^{H,(r)}\rVert_\infty<10^{-8}$}
+    \State 重新计算Bellman残差，并按隐藏热点切换和二元信号向前模拟
+  \end{algorithmic}
+\end{algorithm}
+
 基准求解的三项必要内部检查为：$\max\zeta^R<c$、沿$n$网格的
 $\Delta\Psi^R>0$以及转移不撞击状态空间上界。它们分别排除创作者努力非凹、目标
 进入表示失去单调性和数值结果由边界截断制造三类逻辑错误。敏感性分析另外改变状态
-与行动网格，核验政策阶段转换不是某个离散点的产物。
+与行动网格，核验政策阶段转换不是某个离散点的产物。在线学习还检查高斯随机路径
+不命中状态网格边界、两种规格的$\max\zeta^R<c$、热点政策对称性与最终Bellman残差；
+只有这些检查同时通过，政策函数才写入正文表图。
 \end{appendices}
 
 \bibliographystyle{apalike}

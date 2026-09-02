@@ -1,0 +1,5 @@
+case,switch_probability,signal_cap,iterations,bellman_residual,test_intensity_p50,share_A_p65,test_intensity_p65,entry_p50,entry_p65
+slow_switching,0.02,0.45,214,2.710161695063107e-08,1.0,0.625,0.9375,1.0,1.0
+baseline,0.08,0.45,214,2.6360844174178055e-08,1.0,0.75,0.75,1.0,1.0
+fast_switching,0.18,0.45,214,2.595832171436996e-08,1.0,1.0,0.0,1.0,1.0
+weak_feedback,0.08,0.3,214,2.6070384961940363e-08,1.0,1.0,0.0,1.0,1.0

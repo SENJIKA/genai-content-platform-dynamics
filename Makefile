@@ -13,6 +13,7 @@ data: $(DATA_FILE)
 
 solve: data
 	MPLCONFIGDIR=/tmp/matplotlib-dynamic-paper python3 scripts/solve_dynamic_equilibria.py
+	XDG_CACHE_HOME=/tmp/fontcache-online MPLCONFIGDIR=/tmp/matplotlib-online-paper python3 scripts/solve_online_learning_extensions.py
 
 all:
 	xelatex -interaction=nonstopmode -synctex=1 $(DOC).tex

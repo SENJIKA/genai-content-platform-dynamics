@@ -89,19 +89,19 @@
       "iterations": 223,
       "last_successive_error": 9.204654816130642e-08,
       "bellman_residual": 8.46828243084019e-08,
-      "elapsed_seconds": 2.357937040971592
+      "elapsed_seconds": 2.3005531249800697
     },
     "signed": {
       "iterations": 224,
       "last_successive_error": 9.568788073011092e-08,
       "bellman_residual": 8.803289119896363e-08,
-      "elapsed_seconds": 2.5158020420349203
+      "elapsed_seconds": 2.363874458009377
     },
     "support_only": {
       "iterations": 222,
       "last_successive_error": 9.990513660795841e-08,
       "bellman_residual": 9.191272454245336e-08,
-      "elapsed_seconds": 2.4059742499957792
+      "elapsed_seconds": 2.351562375028152
     }
   },
   "reference_states": [
